@@ -1,5 +1,7 @@
 package com.spring.practice.bookstorebackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import com.spring.practice.bookstorebackend.utils.Role;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,20 +12,29 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
+@Table(name = "user_")
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    @GeneratedValue
+    private Long id;
     private String username;
     private String password;
     @Enumerated(value = EnumType.STRING)
     private Role role;
+    @ManyToMany
+    @JoinTable(
+            name = "user_favorite_books",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "book_id")
+    )
+
+    private List<Book> favoriteBooks;
 
     public User() {
     }
 
-    public User(int id, String username, String password, Role role) {
+    public User(Long id, String username, String password, Role role) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -55,11 +66,11 @@ public class User implements UserDetails {
         return true;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -85,5 +96,13 @@ public class User implements UserDetails {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public List<Book> getFavoriteBooks() {
+        return favoriteBooks;
+    }
+
+    public void setFavoriteBooks(List<Book> favoriteBooks) {
+        this.favoriteBooks = favoriteBooks;
     }
 }

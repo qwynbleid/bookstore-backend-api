@@ -36,9 +36,14 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
                         req
-                                .requestMatchers("/login/**", "/register/**")
+                                .requestMatchers(
+                                        "/api/auth/**",
+                                        "/api/books/all-books",
+                                        "/api/books/get-book/**")
                                 .permitAll()
-//                                .requestMatchers("/admin-only/**").hasAuthority("ADMIN")
+                                .requestMatchers(
+                                        "/api/books/add-book",
+                                        "/api/books/delete-book/**").hasAuthority("ADMIN")
                                 .anyRequest()
                                 .authenticated())
                 .userDetailsService(userDetailsServiceImpl)
