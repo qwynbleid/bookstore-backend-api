@@ -43,7 +43,8 @@ public class SecurityConfiguration {
                                 .permitAll()
                                 .requestMatchers(
                                         "/api/books/add-book",
-                                        "/api/books/delete-book/**").hasAuthority("ADMIN")
+                                        "/api/books/delete-book/**",
+                                        "api/books/all-books-csv").hasAuthority("ADMIN")
                                 .anyRequest()
                                 .authenticated())
                 .userDetailsService(userDetailsServiceImpl)

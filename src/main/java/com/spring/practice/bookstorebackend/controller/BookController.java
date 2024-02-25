@@ -1,15 +1,21 @@
 package com.spring.practice.bookstorebackend.controller;
 
+import com.opencsv.CSVWriter;
+import com.spring.practice.bookstorebackend.entity.Author;
 import com.spring.practice.bookstorebackend.entity.Book;
+import com.spring.practice.bookstorebackend.entity.Genre;
 import com.spring.practice.bookstorebackend.entity.User;
 import com.spring.practice.bookstorebackend.repository.BookRepository;
 import com.spring.practice.bookstorebackend.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/books")
@@ -88,6 +94,37 @@ public class BookController {
             }
         } else {
             return ResponseEntity.ok("User or Book not found");
+        }
+    }
+
+    @GetMapping("/all-books-csv")
+    public void exportBooksToCSV(HttpServletResponse response) throws IOException {
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; file=books.csv");
+
+        List<Book> books = bookRepository.findAll();
+
+        try (CSVWriter csvWriter = new CSVWriter(response.getWriter())) {
+            String[] header = {"Id", "Title", "Author", "Genre"};
+            csvWriter.writeNext(header);
+
+            for (Book book : books) {
+                String authorNames = book.getAuthors().stream()
+                        .map(Author::getName)
+                        .collect(Collectors.joining(", "));
+
+                String genreNames = book.getGenres().stream()
+                        .map(Genre::getName)
+                        .collect(Collectors.joining(", "));
+
+                String[] data = {
+                        String.valueOf(book.getId()),
+                        book.getName(),
+                        authorNames,
+                        genreNames,
+                };
+                csvWriter.writeNext(data);
+            }
         }
     }
 
